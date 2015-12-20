@@ -45,9 +45,13 @@ if [[ -z "$1" ]] ; then
 fi
 
 if [[ -z "$email" ]] ; then
-	error "Edit this script's \"email\" and \"executable\" settings before use" 0
-	usage
+	error "Edit this script's \"email\" setting before use" 0
 	exit 2
+fi
+
+if [[ ! -x "$executable" ]] ; then
+	error "Edit this script's \"executable\" setting before use" 0
+	exit 3
 fi
 
 
