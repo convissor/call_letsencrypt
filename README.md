@@ -1,4 +1,4 @@
-= Call Let's Encrypt =
+# Call Let's Encrypt
 
 A little shell script to simplify getting and renewing SSL / TLS certificates
 via [Let's Encrypt's](https://letsencrypt.org/) "webroot" plugin.
