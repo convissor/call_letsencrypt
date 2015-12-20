@@ -12,8 +12,8 @@ function usage() {
 	echo "Usage: call_letsencrypt.sh <main_domain> [<secondary_domain>...]"
 	echo ""
 	echo "Adds or renews SSL / TLS certificates from Let's Encrypt"
-	echo "using their 'webroot' plugin.  Then calls chmod 400 on the"
-	echo "domain's certificate and key files."
+	echo "using their 'webroot' plugin."
+	echo "Then calls chmod 400 on the domain's certificate and key files."
 	echo "Finally, reloads the web server."
 	echo ""
 	echo "Author: Daniel Convissor <danielc@analysisandsolutions.com>"
@@ -30,10 +30,14 @@ function error() {
 }
 
 
-if [[ "$1" == '-h' || "$1" == '--help' ]] ; then
-	usage
-	exit
-fi
+while getopts "h" OPTION ; do
+	case $OPTION in
+		h|?)
+			usage
+			exit
+			;;
+	esac
+done
 
 if [[ -z "$1" ]] ; then
 	error "The <main_domain> parameter is required" 0
