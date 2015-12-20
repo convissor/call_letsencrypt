@@ -9,12 +9,15 @@ executable=/root/letsencrypt/letsencrypt-auto
 
 function usage() {
 	echo ""
-	echo "Usage: call_letsencrypt.sh <main_domain> [<secondary_domain>...]"
+	echo "Usage: call_letsencrypt.sh [-h] [-a] [-d] [-p] <main_domain> [<secondary_domain>...]"
 	echo ""
 	echo "Adds or renews SSL / TLS certificates from Let's Encrypt"
 	echo "using their 'webroot' plugin."
 	echo "Then calls chmod 400 on the domain's certificate and key files."
-	echo "Finally, reloads the web server."
+	echo "Finally, reloads the services specified by the arguments:"
+	echo "  -a = Apache"
+	echo "  -d = Dovecot"
+	echo "  -p = Postfix"
 	echo ""
 	echo "Author: Daniel Convissor <danielc@analysisandsolutions.com>"
 	echo "https://github.com/convissor/call_letsencrypt"
@@ -30,8 +33,21 @@ function error() {
 }
 
 
-while getopts "h" OPTION ; do
+reload_apache=0
+reload_dovecot=0
+reload_postfix=0
+
+while getopts "hadp" OPTION ; do
 	case $OPTION in
+		a)
+			reload_apache=1
+			;;
+		d)
+			reload_dovecot=1
+			;;
+		p)
+			reload_postfix=1
+			;;
 		h|?)
 			usage
 			exit
@@ -39,11 +55,6 @@ while getopts "h" OPTION ; do
 	esac
 done
 
-if [[ -z "$1" ]] ; then
-	error "The <main_domain> parameter is required" 0
-	usage
-	exit 1
-fi
 
 if [[ -z "$email" ]] ; then
 	error "Edit this script's \"email\" setting before use" 2
@@ -54,11 +65,17 @@ if [[ ! -x "$executable" ]] ; then
 fi
 
 
+i=0
 main_domain=
 document_root=
 domains_args=
 
 for domain in "$@" ; do
+	i=$[i + 1]
+	if [ $i -lt $OPTIND ] ; then
+		continue
+	fi
+
 	if [ -z "$main_domain" ] ; then
 		main_domain="$domain"
 		document_root="/var/www/$domain/public_html"
@@ -67,13 +84,30 @@ for domain in "$@" ; do
 	domain_args+=" -d '$domain'"
 done
 
+if [[ -z "$main_domain" ]] ; then
+	error "The <main_domain> parameter is required" 0
+	usage
+	exit 1
+fi
+
 if [[ ! -w "$document_root" ]] ; then
 	error "Web root directory is not writable: '$document_root'" 4
 fi
+
 
 $executable certonly --webroot \
 	--renew-by-default --agree-tos --email "$email" $domain_args
 
 find "/etc/letsencrypt/archive/$main_domain" -type f -exec chmod 400 {} \;
 
-service apache2 reload
+if [ $reload_apache -eq 1 ] ; then
+	service apache2 reload
+fi
+
+if [ $reload_dovecot -eq 1 ] ; then
+	service dovecot reload
+fi
+
+if [ $reload_postfix -eq 1 ] ; then
+	service postfix reload
+fi
