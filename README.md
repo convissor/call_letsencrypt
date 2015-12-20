@@ -7,3 +7,6 @@ Set the `email` and `executable` variables in the script before using it.
 
 If your website root directory is not `/var/www/<domain>/public_html`
 you'll need to edit that part of the script as well.
+
+If your system uses something other than `service apache2 reload`
+to pick up new web server configurations, please adjust the script for that.

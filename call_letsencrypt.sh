@@ -14,10 +14,7 @@ function usage() {
 	echo "Adds or renews SSL / TLS certificates from Let's Encrypt"
 	echo "using their 'webroot' plugin.  Then calls chmod 400 on the"
 	echo "domain's certificate and key files."
-	echo ""
-	echo "NOTE:  If your website root directory is not"
-	echo "    /var/www/<main_domain>/public_html"
-	echo "you need to edit this script before using it."
+	echo "Finally, reloads the web server."
 	echo ""
 	echo "Author: Daniel Convissor <danielc@analysisandsolutions.com>"
 	echo "https://github.com/convissor/call_letsencrypt"
@@ -70,3 +67,5 @@ $executable certonly --webroot \
 	--renew-by-default --agree-tos --email "$email" $domain_args
 
 find "/etc/letsencrypt/archive/$main_domain" -type f -exec chmod 400 {} \;
+
+service apache2 reload
