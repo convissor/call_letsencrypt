@@ -53,15 +53,21 @@ fi
 
 
 main_domain=
+document_root=
 domains_args=
 
 for domain in "$@" ; do
 	if [ -z "$main_domain" ] ; then
 		main_domain="$domain"
-		domain_args+=" -w '/var/www/$domain/public_html'"
+		document_root="/var/www/$domain/public_html"
+		domain_args+=" -w '$document_root'"
 	fi
 	domain_args+=" -d '$domain'"
 done
+
+if [[ ! -w "$document_root" ]] ; then
+	error "Web root directory is not writable: '$document_root'" 4
+fi
 
 $executable certonly --webroot \
 	--renew-by-default --agree-tos --email "$email" $domain_args
