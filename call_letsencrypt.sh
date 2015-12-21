@@ -79,9 +79,9 @@ for domain in "$@" ; do
 	if [ -z "$main_domain" ] ; then
 		main_domain="$domain"
 		document_root="/var/www/$domain/public_html"
-		domain_args+=" -w '$document_root'"
+		domain_args+=" -w $document_root"
 	fi
-	domain_args+=" -d '$domain'"
+	domain_args+=" -d $domain"
 done
 
 if [[ -z "$main_domain" ]] ; then
