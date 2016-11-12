@@ -96,7 +96,7 @@ fi
 
 
 $executable certonly --webroot \
-	--renew-by-default --agree-tos --email "$email" $domain_args
+	--text --renew-by-default --agree-tos --email "$email" $domain_args
 
 find "/etc/letsencrypt/archive/$main_domain" -type f -exec chmod 400 {} \;
 
